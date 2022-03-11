@@ -3,4 +3,10 @@ declare module "Models" {
     username: string;
     password: string;
   }
+
+  export interface RegisterInput {
+    username: string;
+    password: string;
+    confirmPassword: string;
+  }
 }

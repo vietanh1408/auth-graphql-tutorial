@@ -44,7 +44,7 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app });
 
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 4000;
 
   await new Promise((resolve) =>
     httpServer.listen({ port: PORT }, resolve as () => void)

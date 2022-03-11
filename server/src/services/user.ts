@@ -4,6 +4,12 @@ import { User } from "../entities/User";
 import { LoginInput, RegisterInput, UserMutationResponse } from "../types/user";
 
 export class UserService {
+  async users(): Promise<User[]> {
+    const users = await User.find();
+
+    return users;
+  }
+
   async register(input: RegisterInput): Promise<UserMutationResponse> {
     const { username, password } = input;
 

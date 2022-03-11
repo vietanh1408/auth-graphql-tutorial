@@ -3,9 +3,11 @@ import { Button, Typography } from "@mui/material";
 import { LoginInput } from "Models";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import CustomInput from "src/components/Form/CustomInput";
 import CustomPassword from "src/components/Form/CustomPassword";
 import FormLayout from "src/components/Form/FormLayout";
+import { useLoginMutation } from "src/generated/graphql";
 import * as yup from "yup";
 import yupExtension from "../../../extensions/yup";
 
@@ -15,6 +17,10 @@ const schema = yup.object().shape({
 });
 
 const Login: React.FC = () => {
+  const [login, _] = useLoginMutation();
+
+  const navigate = useNavigate();
+
   const formProps = useForm<LoginInput>({
     defaultValues: { username: "", password: "" },
     resolver: yupResolver(schema),
@@ -22,8 +28,21 @@ const Login: React.FC = () => {
 
   const { handleSubmit } = formProps;
 
-  const onSubmit = (data: LoginInput) => {
-    console.log("data..........", data);
+  const onSubmit = async (data: LoginInput) => {
+    const response = await login({
+      variables: {
+        input: {
+          username: data.username,
+          password: data.password,
+        },
+      },
+    });
+
+    if (response.data?.login.accessToken) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
   };
 
   return (

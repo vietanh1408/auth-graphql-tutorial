@@ -9,7 +9,13 @@ const password = (length: number = 6) => {
     .min(length, validate.password(length));
 };
 
+const confirmPassword = Yup.string()
+  .required(validate.required)
+  .trim(validate.required)
+  .oneOf([Yup.ref("password"), null], validate.confirmPassword);
+
 export default {
   username,
   password,
+  confirmPassword,
 };
