@@ -1,9 +1,5 @@
 require("dotenv").config();
 import { ApolloServer } from "apollo-server-express";
-import {
-  ApolloServerPluginDrainHttpServer,
-  ApolloServerPluginLandingPageGraphQLPlayground,
-} from "apollo-server-express/node_modules/apollo-server-core";
 import express from "express";
 import { createServer } from "http";
 import { buildSchema } from "type-graphql";
@@ -12,6 +8,10 @@ import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/user";
 import "reflect-metadata";
 import { Context } from "./types/context";
+import refreshTokenRouter from "./routes/refreshToken";
+import cookieParser from "cookie-parser";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core/dist/plugin/drainHttpServer";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core/dist/plugin/landingPage/graphqlPlayground";
 
 const main = async () => {
   await createConnection({
@@ -25,6 +25,9 @@ const main = async () => {
   });
 
   const app = express();
+
+  app.use(cookieParser());
+  app.use("/refresh_token", refreshTokenRouter);
 
   const httpServer = createServer(app);
 
@@ -42,7 +45,13 @@ const main = async () => {
 
   await apolloServer.start();
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: {
+      origin: "http://localhost:3000",
+      credentials: true,
+    },
+  });
 
   const PORT = process.env.PORT || 4000;
 

@@ -10,6 +10,7 @@ import FormLayout from "src/components/Form/FormLayout";
 import { useRegisterMutation } from "src/generated/graphql";
 import * as yup from "yup";
 import yupExtension from "../../../extensions/yup";
+import JWTManager from "../../../utils/jwt";
 
 const schema = yup.object().shape({
   username: yupExtension.username,
@@ -30,7 +31,7 @@ const Register: React.FC = () => {
   const { handleSubmit } = formProps;
 
   const onSubmit = async (data: RegisterInput) => {
-    await register({
+    const response = await register({
       variables: {
         input: {
           username: data.username,
@@ -38,7 +39,12 @@ const Register: React.FC = () => {
         },
       },
     });
-    navigate("/");
+    if (response.data?.register.accessToken) {
+      JWTManager.setToken(response.data?.register.accessToken as string);
+      navigate("/");
+    } else {
+      navigate("/register");
+    }
   };
 
   return (

@@ -1,7 +1,8 @@
 import argon2 from "argon2";
-import { createToken } from "../utils/auth";
+import { createToken, sendRefreshToken } from "../utils/auth";
 import { User } from "../entities/User";
 import { LoginInput, RegisterInput, UserMutationResponse } from "../types/user";
+import { Context } from "src/types/context";
 
 export class UserService {
   async users(): Promise<User[]> {
@@ -37,12 +38,17 @@ export class UserService {
       success: true,
       message: "Đăng ký thành công",
       user: newUser,
-      accessToken: createToken(newUser),
+      accessToken: createToken("accessToken", newUser),
     };
   }
 
-  async login(input: LoginInput): Promise<UserMutationResponse> {
+  async login(
+    input: LoginInput,
+    context: Context
+  ): Promise<UserMutationResponse> {
     const { username, password } = input;
+
+    const { res } = context;
 
     const existedUser = await User.findOne({ username });
 
@@ -64,12 +70,14 @@ export class UserService {
       };
     }
 
+    sendRefreshToken(res, existedUser);
+
     return {
       code: 200,
       success: true,
       message: "Đăng nhập thành công",
       user: existedUser,
-      accessToken: createToken(existedUser),
+      accessToken: createToken("accessToken", existedUser),
     };
   }
 }

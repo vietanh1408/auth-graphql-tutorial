@@ -10,6 +10,7 @@ import FormLayout from "src/components/Form/FormLayout";
 import { useLoginMutation } from "src/generated/graphql";
 import * as yup from "yup";
 import yupExtension from "../../../extensions/yup";
+import JWTManager from "../../../utils/jwt";
 
 const schema = yup.object().shape({
   username: yupExtension.username,
@@ -39,6 +40,7 @@ const Login: React.FC = () => {
     });
 
     if (response.data?.login.accessToken) {
+      JWTManager.setToken(response.data?.login.accessToken as string);
       navigate("/");
     } else {
       navigate("/login");
